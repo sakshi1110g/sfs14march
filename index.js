@@ -6,9 +6,16 @@ const multer = require("multer");
 const path = require("path");
 
 const app = express();
+
 app.use(cors());
 app.use(express.json());
 
+/* ROOT ROUTE */
+app.get("/", (req, res) => {
+  res.send("Student API running on Render 🚀");
+});
+
+/* DATABASE CONNECTION */
 const con = mysql.createConnection({
   host: "sql12.freesqldatabase.com",
   user: "sql12820085",
@@ -16,10 +23,8 @@ const con = mysql.createConnection({
   database: "sql12820085"
 });
 
-
-// FILE STORAGE SETTINGS
+/* FILE STORAGE SETTINGS */
 const storage = multer.diskStorage({
-
   destination: (req, file, cb) => {
     cb(null, "uploads/");
   },
@@ -27,17 +32,14 @@ const storage = multer.diskStorage({
   filename: (req, file, cb) => {
     cb(null, Date.now() + path.extname(file.originalname));
   }
-
 });
 
 const upload = multer({ storage });
 
-
-// STATIC FOLDER FOR IMAGES
+/* STATIC FOLDER FOR IMAGES */
 app.use("/uploads", express.static("uploads"));
 
-
-// SAVE STUDENT
+/* SAVE STUDENT */
 app.post("/ss", upload.single("file"), (req, res) => {
 
   let sql = "insert into student values(?, ?, ?, ?)";
@@ -49,35 +51,29 @@ app.post("/ss", upload.single("file"), (req, res) => {
   ];
 
   con.query(sql, data, (error, response) => {
-
     if (error)
       res.send(error);
     else
       res.send(response);
-
   });
 
 });
 
-
-// GET STUDENTS
+/* GET STUDENTS */
 app.get("/gs", (req, res) => {
 
   let sql = "select * from student";
 
   con.query(sql, (error, response) => {
-
     if (error)
       res.send(error);
     else
       res.send(response);
-
   });
 
 });
 
-
-// DELETE STUDENT
+/* DELETE STUDENT */
 app.delete("/ds", (req, res) => {
 
   let sql = "delete from student where rno = ?";
@@ -89,18 +85,17 @@ app.delete("/ds", (req, res) => {
   });
 
   con.query(sql, data, (error, response) => {
-
     if (error)
       res.send(error);
     else
       res.send(response);
-
   });
 
 });
 
+/* SERVER */
+const PORT = process.env.PORT || 9000;
 
-// SERVER
-app.listen(9000, () => {
-  console.log("Ready to serve @ 9000");
+app.listen(PORT, () => {
+  console.log("Ready to serve @ " + PORT);
 });
